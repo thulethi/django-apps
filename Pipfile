@@ -9,6 +9,7 @@ verify_ssl = true
 django = "==3.0.8"
 psycopg2 = "==2.8.4"
 python-dotenv = "*"
+djangorestframework = "*"
 
 [requires]
 python_version = "3.8"
