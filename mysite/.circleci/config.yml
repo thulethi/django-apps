@@ -1,0 +1,78 @@
+version: 2.1
+
+executors:
+  main:
+    docker:
+      - image: circleci/python:3.8.3
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
+      - image: circleci/postgres:12.3
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: circle_test
+
+jobs:
+  checkout_code:
+    executor: main
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - .
+
+  build_and_test:
+    executor: main
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+      - restore_cache:
+          key: deps10-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            pip install pipenv
+            pipenv install
+      - save_cache:
+          key: deps10-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - '.venv'
+            - '/usr/local/bin'
+            - '/usr/local/lib/python3.8/site-packages'
+      - run:
+          name: Run tests
+          command: |
+            pipenv run python manage.py test
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
+  deploy:
+    steps:
+      - checkout
+      - run:
+          name: Deploy master to Heroku
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+
+workflows:
+  version: 2.1
+  build-deploy:
+    jobs:
+      - checkout_code
+      - build_and_test:
+          requires:
+            - checkout_code
+      - deploy:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: master
