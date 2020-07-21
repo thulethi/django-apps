@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  heroku: circleci/heroku@0.0.10.
+
 executors:
   main:
     docker:
@@ -55,14 +58,6 @@ jobs:
           path: test-results
           destination: tr1
 
-  deploy:
-    steps:
-      - checkout
-      - run:
-          name: Deploy master to Heroku
-          command: |
-            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
-
 workflows:
   version: 2.1
   build-deploy:
@@ -71,7 +66,7 @@ workflows:
       - build_and_test:
           requires:
             - checkout_code
-      - deploy:
+      - heroku/deploy-via-git:
           requires:
             - build_and_test
           filters:
