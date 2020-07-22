@@ -1,0 +1,28 @@
+version: "3"
+
+volumes:
+  db_volume:
+
+services:
+  db:
+    image: postgres:12
+    container_name: django_apps_db
+    env_file: ./mysite/mysite/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_volume:/var/lib/postgresql/data/
+    restart: always
+
+  web:
+    build: .
+    container_name: django_apps_web
+    env_file: ./mysite/mysite/.env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: python mysite/manage.py runserver 0.0.0.0:8000
+    restart: always
