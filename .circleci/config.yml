@@ -14,10 +14,9 @@ executors:
           DATABASE_URL: psql://postgres:@localhost:5433/postgres
       - image: circleci/postgres:12.3
         environment:
-          POSTGRES_HOST_AUTH_METHOD: "trust"
-          # POSTGRES_USER: ${POSTGRES_USER}
-          # POSTGRES_DB: ${POSTGRES_DB}
-          # POSTGRES_PASSWORD: ''
+          POSTGRES_USER: django_apps_user
+          POSTGRES_DB: django_apps_db
+          POSTGRES_PASSWORD: postgres
 
 jobs:
   checkout_code:
