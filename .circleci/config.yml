@@ -1,16 +1,22 @@
 version: 2.1
 
+orbs:
+  heroku: circleci/heroku@1.0.1
+
 executors:
   main:
     docker:
       - image: circleci/python:3.8.3
         environment:
           PIPENV_VENV_IN_PROJECT: true
-          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
+          DEBUG: True
+          ALLOWED_HOSTS: "*"
+          DATABASE_URL: psql://postgres:@localhost:5433/postgres
       - image: circleci/postgres:12.3
         environment:
-          POSTGRES_USER: root
-          POSTGRES_DB: circle_test
+          POSTGRES_USER: django_apps_user
+          POSTGRES_DB: django_apps_db
+          POSTGRES_PASSWORD: postgres
 
 jobs:
   checkout_code:
@@ -45,22 +51,20 @@ jobs:
             - '/usr/local/bin'
             - '/usr/local/lib/python3.8/site-packages'
       - run:
+          name: Prepare db
+          command: |
+            cd mysite
+            pipenv run python manage.py migrate
+      - run:
           name: Run tests
           command: |
+            cd mysite
             pipenv run python manage.py test
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
           destination: tr1
-
-  deploy:
-    steps:
-      - checkout
-      - run:
-          name: Deploy master to Heroku
-          command: |
-            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
 
 workflows:
   version: 2.1
@@ -70,7 +74,7 @@ workflows:
       - build_and_test:
           requires:
             - checkout_code
-      - deploy:
+      - heroku/deploy-via-git:
           requires:
             - build_and_test
           filters:
