@@ -12,7 +12,13 @@ services:
       - "5432:5432"
     volumes:
       - db_volume:/var/lib/postgresql/data/
+    # environment:
+    #   - POSTGRES_DB=django_apps_db
+    #   - POSTGRES_USER=django_apps_user
+    #   - POSTGRES_PASSWORD=postgres
     restart: always
+    # networks:
+    #   - djangonetwork
 
   web:
     build: .
@@ -20,9 +26,17 @@ services:
     env_file: ./mysite/mysite/.env
     depends_on:
       - db
+    links:
+      - db
     ports:
       - "8000:8000"
     volumes:
       - .:/app
     command: python mysite/manage.py runserver 0.0.0.0:8000
     restart: always
+#     networks:
+#       - djangonetwork
+
+# networks:
+#   djangonetwork:
+#       driver: bridge
