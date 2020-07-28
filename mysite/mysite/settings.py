@@ -13,11 +13,14 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import environ
 
+root_path = environ.Path(__file__) - 2
+
 env = environ.Env(
     DEBUG=(bool, True),
     SECRET_KEY=(str, "secret"),
     )
-environ.Env.read_env()
+# environ.Env.read_env()
+environ.Env.read_env(root_path('.env'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -84,12 +87,13 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env.str('POSTGRES_DB', default='django_apps_db'),
-        'USER': env.str('POSTGRES_USER', default='django_apps_user'),
-        'PASSWORD': env.str('POSTGRES_PASSWORD', default='postgres'),
+        'NAME': 'django_apps_db',
+        'USER': 'django_apps_user',
+        'PASSWORD': 'postgres',
         'HOST': 'db',
         'PORT': '5432',
     }
