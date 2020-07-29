@@ -12,7 +12,15 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import environ
-import dotenv
+
+root_path = environ.Path(__file__) - 2
+
+env = environ.Env(
+    DEBUG=(bool, True),
+    SECRET_KEY=(str, "secret"),
+    )
+# environ.Env.read_env()
+environ.Env.read_env(root_path('.env'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,18 +29,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-env = environ.Env(
-  DEBUG=(bool, False),
-  SECRET_KEY=(str, "secret"),
-)
-environ.Env.read_env()
-
 # Update secret key
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env.str('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -85,13 +87,14 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'django_apps_db',
         'USER': 'django_apps_user',
         'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }

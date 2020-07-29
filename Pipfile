@@ -7,10 +7,10 @@ verify_ssl = true
 
 [packages]
 django = "==3.0.8"
-psycopg2 = "==2.8.4"
 python-dotenv = {extras = ["cli"], version = "*"}
 djangorestframework = "*"
 django-environ = "==0.4.5"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.8"
